@@ -10,7 +10,11 @@ namespace DancingLinks
 {
 	public class Matrix
     {
+        #region Private variables
         private readonly Master _master = new Master();
+        #endregion
+
+        #region Public variables
         public int Width { get; }
 
         internal IEnumerable<ColHeader> Columns => 
@@ -21,11 +25,40 @@ namespace DancingLinks
                 Cast<ColHeader>();
 
         internal bool Solved => _master.RowLink.Unlinked;
+        #endregion
+
+        #region Constructors
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor with just rows which consist of enumerable options. </summary>
+        ///
+        /// <remarks>
+        /// These options must be column descriptions.  If two rows both cover the same option that is
+        /// only indicated by them have the identical object in this enumeration. Darrell Plank,
+        /// 10/23/2020.
+        /// </remarks>
+        ///
+        /// <param name="rows"> 	The rows. </param>
+        /// <param name="width">	The width. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public Matrix(IEnumerable<IEnumerable<object>> rows, int width) 
             : this(rows, Enumerable.Range(0, width).ToList()) {}
 
-        public Matrix(IEnumerable<IEnumerable<object>> rows, IEnumerable descriptions)
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>	Constructor with just rows which consist of enumerable options </summary>
+        ///
+        /// <remarks>	These options must be column descriptions.  If two rows both cover the same option
+        /// 			that is only indicated by them have the identical object in this enumeration.
+        /// 			Darrell Plank, 10/23/2020. </remarks>
+        ///
+        /// <param name="rows"> 	The rows. </param>
+        /// <param name="width">	The width. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        public Matrix(IEnumerable<IEnumerable<object>> rows, IEnumerable descriptions) :
+            this(rows.Select(r => ((object)null, r)), descriptions) {}
+
+        public Matrix(IEnumerable<(object, IEnumerable<object>)> rows, IEnumerable descriptions)
         {
             var descDict = new Dictionary<object, ColHeader>();
             foreach (var desc in descriptions)
@@ -41,7 +74,7 @@ namespace DancingLinks
                 Width++;
             }
 
-            foreach (var row in rows)
+            foreach (var (rowDesc, row) in rows)
             {
                 MtxOne prevOne = null;
                 foreach (var desc in row)
@@ -51,7 +84,7 @@ namespace DancingLinks
                         throw new InvalidDataException("Row description with no matching column description");
                     }
                     var col = descDict[desc];
-                    prevOne = new MtxOne(prevOne?.RowLink, col.ColLink.Prev, col);
+                    prevOne = new MtxOne(prevOne?.RowLink, col.ColLink.Prev, col, rowDesc);
                     col.Size++;
                 }
             }
@@ -106,5 +139,6 @@ namespace DancingLinks
                 }
             }
         }
+        #endregion
     }
 }

@@ -15,14 +15,13 @@ namespace DancingLinks
             _slnRows = new Stack<MtxOne>();
         }
 
-        // Comments are from the psuedocode in Knuth's original paper
-        public IEnumerable<object[][]> Solve()
+        public IEnumerable<IEnumerable<MtxOne>> Solve()
         {
             // If R[h] == h
             if (_mtx.Solved)
             {
                 // print the current solution and return
-                yield return _slnRows.Select(r => r.RowLink.Elements().Select(o => o.Header.Desc).ToArray()).ToArray();
+                yield return _slnRows;
                 yield break;
             }
 
